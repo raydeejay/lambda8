@@ -290,18 +290,65 @@ ar_Value *f_find_first_not_in_backward(ar_State *S, ar_Value *args) {
     return NULL;
 }
 
+void initMachineLisp(ar_State *S) {
+    // load the core library
+    ar_do_file(S, "lib.lsp");
+
+    // initialise the environment
+    ar_bind_global(S, "SCREEN-WIDTH", ar_new_number(S, L8_WIDTH));
+    ar_bind_global(S, "SCREEN-HEIGHT", ar_new_number(S, L8_HEIGHT));
+
+    ar_bind_global(S, "spr", ar_new_cfunc(S, f_spr));
+    ar_bind_global(S, "pix", ar_new_cfunc(S, f_pix));
+    ar_bind_global(S, "rect", ar_new_cfunc(S, f_rect));
+    ar_bind_global(S, "line", ar_new_cfunc(S, f_line));
+    ar_bind_global(S, "cls", ar_new_cfunc(S, f_cls));
+
+    ar_bind_global(S, "define-sprite", ar_new_cfunc(S, f_define_sprite));
+
+    ar_bind_global(S, "define-sfx", ar_new_cfunc(S, f_define_sfx));
+    ar_bind_global(S, "sfx", ar_new_cfunc(S, f_sfx));
+
+    ar_bind_global(S, "printxy", ar_new_cfunc(S, f_printxy));
+
+    // load the game
+    /* ar_do_file(S, "game.lsp"); */
+    load_script(S, gScriptFilename);
+}
+
+
+void initEditorLisp(ar_State *ES) {
+    // init the editor's interpreter
+
+    // load the core library
+    ar_do_file(ES, "lib.lsp");
+
+    // bind the editor functions to the global environment
+    ar_bind_global(ES, "insert-char", ar_new_cfunc(ES, f_insert_char));
+    ar_bind_global(ES, "point-move", ar_new_cfunc(ES, f_point_move));
+    ar_bind_global(ES, "get-column", ar_new_cfunc(ES, f_get_column));
+    ar_bind_global(ES, "find-first-in-forward", ar_new_cfunc(ES,  f_find_first_in_forward));
+    ar_bind_global(ES, "find-first-in-backward", ar_new_cfunc(ES, f_find_first_in_backward));
+    ar_bind_global(ES, "find-first-not-in-forward", ar_new_cfunc(ES,  f_find_first_not_in_forward));
+    ar_bind_global(ES, "find-first-not-in-backward", ar_new_cfunc(ES, f_find_first_not_in_backward));
+    ar_do_file(ES, "editor.lsp");
+}
+
 int main(int argc, char* argv[])
 {
     ar_State *S = ar_new_state(NULL, NULL);
     ar_State *ES = ar_new_state(NULL, NULL);
-    
-    if (!S) {
+
+    // bail out if aria fails to initialise
+    if (!S || !ES) {
         printf("out of memory\n");
         return EXIT_FAILURE;
     }
 
+    // use game.lsp as default filename
     gScriptFilename = argc < 2 ? "game.lsp" : argv[1];
-        
+
+    // bail out if the file can't be loaded
     if (!access(gScriptFilename, R_OK) == 0) {
         printf("Cannot load %s\n", gScriptFilename);
         return 1;
@@ -310,248 +357,238 @@ int main(int argc, char* argv[])
     //Start up SDL and create window
     if (!init())
     {
-        printf("Failed to initialize!\n");
+        printf("Failed to initialize SDL!\n");
+        exit(-1);
     }
-    else
-    {
-        // load the core library
-        ar_do_file(S, "lib.lsp");
 
-        // initialise the environment
-        ar_bind_global(S, "SCREEN-WIDTH", ar_new_number(S, L8_WIDTH));
-        ar_bind_global(S, "SCREEN-HEIGHT", ar_new_number(S, L8_HEIGHT));
+    initMachineLisp(S);
+    initEditorLisp(ES);
 
-        ar_bind_global(S, "spr", ar_new_cfunc(S, f_spr));
-        ar_bind_global(S, "pix", ar_new_cfunc(S, f_pix));
-        ar_bind_global(S, "rect", ar_new_cfunc(S, f_rect));
-        ar_bind_global(S, "line", ar_new_cfunc(S, f_line));
-        ar_bind_global(S, "cls", ar_new_cfunc(S, f_cls));
+    //Main loop flag
+    int quit = 0;
 
-        ar_bind_global(S, "define-sprite", ar_new_cfunc(S, f_define_sprite));
+    //Event handler
+    SDL_Event e;
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    int keys = 0;
+    int lastkeys = 0;
 
-        ar_bind_global(S, "define-sfx", ar_new_cfunc(S, f_define_sfx));
-        ar_bind_global(S, "sfx", ar_new_cfunc(S, f_sfx));
+    //Start counting frames per second
+    int countedFrames = 0;
+        
+    //While application is running
+    while (!quit) {
+        int startFrame = SDL_GetTicks();
+        lastkeys = keys;
+        keys = 0;
 
-        ar_bind_global(S, "printxy", ar_new_cfunc(S, f_printxy));
-
-        // load the game
-        /* ar_do_file(S, "game.lsp"); */
-        load_script(S, gScriptFilename);
-
-
-        // init the editor's interpreter
-        ar_do_file(ES, "lib.lsp");
-        ar_bind_global(ES, "insert-char", ar_new_cfunc(ES, f_insert_char));
-        ar_bind_global(ES, "point-move", ar_new_cfunc(ES, f_point_move));
-        ar_bind_global(ES, "find-first-in-forward", ar_new_cfunc(ES,  f_find_first_in_forward));
-        ar_bind_global(ES, "find-first-in-backward", ar_new_cfunc(ES, f_find_first_in_backward));
-        ar_bind_global(ES, "find-first-not-in-forward", ar_new_cfunc(ES,  f_find_first_not_in_forward));
-        ar_bind_global(ES, "find-first-not-in-backward", ar_new_cfunc(ES, f_find_first_not_in_backward));
-        ar_do_file(ES, "editor.lsp");
-
-        //Main loop flag
-        int quit = 0;
-        int keys = 0;
-        int lastkeys = 0;
-
-        //Event handler
-        SDL_Event e;
-        const Uint8 *state = SDL_GetKeyboardState(NULL);
-
-        //Start counting frames per second
-        int countedFrames = 0;
-        //While application is running
-
-        while (!quit)
-        {
-            int startFrame = SDL_GetTicks();
-            lastkeys = keys;
-            keys = 0;
-
-            if (machine_mode == GAME) {
-                //Handle events on queue
-                while (SDL_PollEvent(&e) != 0)
-                {
-                    //User requests quit
-                    if (e.type == SDL_QUIT)
-                    {
+        if (machine_mode == GAME) {
+            //Handle events on queue
+            while (SDL_PollEvent(&e) != 0) {
+                if (e.type == SDL_QUIT) {
+                    quit = 1;
+                }
+                else if (e.type == SDL_KEYDOWN) {
+                    switch (e.key.keysym.sym) {
+                    case SDLK_ESCAPE:
                         quit = 1;
-                    }
-                    else if (e.type == SDL_KEYDOWN)
-                    {
-                        switch (e.key.keysym.sym)
-                        {
-                        case SDLK_ESCAPE:
-                            quit = 1;
-                            break;
-                        case SDLK_r:
-                            if (e.key.keysym.mod & KMOD_CTRL) {
-                                ar_do_string(S, gScript);
-                            }
-                            break;
-                        case SDLK_F1:
-                            machine_mode = GAME;
-                            break;
-                        case SDLK_F2:
-                            machine_mode = EDITOR;
-                            Buffer_Clear(gBuffer);
-                            Insert_String(gBuffer, gScript);
-                            Set_Modified(gBuffer, 0);
-                            break;
-                        default:
-                            break;
+                        break;
+                    case SDLK_r:
+                        if (e.key.keysym.mod & KMOD_CTRL) {
+                            ar_do_string(S, gScript);
                         }
+                        break;
+                    case SDLK_F1:
+                        SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
+                        machine_mode = GAME;
+                        break;
+                    case SDLK_F2:
+                        machine_mode = EDITOR;
+                        SDL_RenderSetLogicalSize(gRenderer,
+                                                 SCREEN_WIDTH, SCREEN_HEIGHT);
+                        Buffer_Clear(gBuffer);
+                        Insert_String(gBuffer, gScript);
+                        Set_Modified(gBuffer, 0);
+                        break;
+                    default:
+                        break;
                     }
                 }
-
-                // get keys
-                if (state[SDL_SCANCODE_UP])    { keys |= (1 << 0); }
-                if (state[SDL_SCANCODE_DOWN])  { keys |= (1 << 1); }
-                if (state[SDL_SCANCODE_LEFT])  { keys |= (1 << 2); }
-                if (state[SDL_SCANCODE_RIGHT]) { keys |= (1 << 3); }
-
-                if (state[SDL_SCANCODE_Z])     { keys |= (1 << 4); }
-                if (state[SDL_SCANCODE_X])     { keys |= (1 << 5); }
-                if (state[SDL_SCANCODE_A])     { keys |= (1 << 6); }
-                if (state[SDL_SCANCODE_S])     { keys |= (1 << 7); }
-
-                ar_bind_global(S, "LASTKEYS", ar_new_number(S, lastkeys));
-                ar_bind_global(S, "KEYS", ar_new_number(S, keys));
-
-                // get mouse
-                int buttons, x, y;
-                buttons = SDL_GetMouseState(&x, &y);
-
-                // scale the physical coordinates to logical coordinates
-                ar_bind_global(S, "MOUSEX", ar_new_number(S, x * L8_WIDTH / SCREEN_WIDTH));
-                ar_bind_global(S, "MOUSEY", ar_new_number(S, y * L8_HEIGHT / SCREEN_HEIGHT));
-                ar_bind_global(S, "BUTTONS", ar_new_number(S, buttons));
-
-                //Clear screen
-                SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-                SDL_RenderClear(gRenderer);
-
-                // run lisp
-                ar_do_string(S, "(update)");
             }
-            else if (machine_mode == EDITOR) {
-                //Handle events on queue
-                while (SDL_PollEvent(&e) != 0)
-                {
-                    //User requests quit
-                    if (e.type == SDL_QUIT)
-                    {
-                        quit = 1;
-                    }
-                    else if (e.type == SDL_KEYDOWN)
-                    {
-                        char keystr[64] = {'\0'};
-                        int mods = 0;
+
+            // get keys
+            if (state[SDL_SCANCODE_UP])    { keys |= (1 << 0); }
+            if (state[SDL_SCANCODE_DOWN])  { keys |= (1 << 1); }
+            if (state[SDL_SCANCODE_LEFT])  { keys |= (1 << 2); }
+            if (state[SDL_SCANCODE_RIGHT]) { keys |= (1 << 3); }
+
+            if (state[SDL_SCANCODE_Z])     { keys |= (1 << 4); }
+            if (state[SDL_SCANCODE_X])     { keys |= (1 << 5); }
+            if (state[SDL_SCANCODE_A])     { keys |= (1 << 6); }
+            if (state[SDL_SCANCODE_S])     { keys |= (1 << 7); }
+
+            ar_bind_global(S, "LASTKEYS", ar_new_number(S, lastkeys));
+            ar_bind_global(S, "KEYS", ar_new_number(S, keys));
+
+            // get mouse
+            int buttons, x, y;
+            buttons = SDL_GetMouseState(&x, &y);
+
+            // scale the physical coordinates to logical coordinates
+            ar_bind_global(S, "MOUSEX", ar_new_number(S, x * L8_WIDTH / SCREEN_WIDTH));
+            ar_bind_global(S, "MOUSEY", ar_new_number(S, y * L8_HEIGHT / SCREEN_HEIGHT));
+            ar_bind_global(S, "BUTTONS", ar_new_number(S, buttons));
+
+            //Clear screen
+            SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+            SDL_RenderClear(gRenderer);
+
+            // run lisp
+            ar_do_string(S, "(update)");
+        }
+        else if (machine_mode == EDITOR) {
+            //Handle events on queue
+            while (SDL_PollEvent(&e) != 0) {
+                //User requests quit
+                if (e.type == SDL_QUIT) {
+                    quit = 1;
+                }
+                else if (e.type == SDL_KEYDOWN) {
+                    char keystr[64] = {'\0'};
+                    int mods = 0;
+
+                    // CONSIDER HOW TO IMPLEMENT MOUSE EVENTS
                         
-                        switch (e.key.keysym.sym)
-                        {
-                        case SDLK_ESCAPE:
-                            quit = 1;
-                            break;
-                        case SDLK_F1:
-                            machine_mode = GAME;
-                            break;
-                        case SDLK_F2:
-                            machine_mode = EDITOR;
-                            break;
-                        case SDLK_F5:
-                            //save
-                            free(gScript);
-                            gScript = renderGapBuffer(gBuffer->contents);
-                            break;
-                        case SDLK_F6:
-                            // load
-                            Buffer_Clear(gBuffer);
-                            Insert_String(gBuffer, gScript);
-                            break;
+                    /* // get mouse */
+                    /* int buttons, x, y; */
+                    /* buttons = SDL_GetMouseState(&x, &y); */
 
-                        case SDLK_F9:
-                            // load
-                            ar_do_file(ES, "editor.lsp");
-                            Buffer_Clear(gBuffer);
-                            Insert_String(gBuffer, gScript);
-                            break;
+                    /* // scale the physical coordinates to logical coordinates */
+                    /* ar_bind_global(S, "MOUSEX", ar_new_number(S, x * L8_WIDTH / SCREEN_WIDTH)); */
+                    /* ar_bind_global(S, "MOUSEY", ar_new_number(S, y * L8_HEIGHT / SCREEN_HEIGHT)); */
+                    /* ar_bind_global(S, "BUTTONS", ar_new_number(S, buttons)); */
 
-                        case SDLK_RETURN:
-                            Insert_Char(gBuffer, '\n');
-                            break;
-                        case SDLK_BACKSPACE:
-                            if (gBuffer->point > 0) {
-                                Point_Move(gBuffer, -1);
-                                Delete(gBuffer, 1);
-                            }
-                            break;
-                        case SDLK_DELETE:
-                            if (gBuffer->point < gBuffer->contents->count) {
-                                Delete(gBuffer, 1);
-                            }
-                            break;
-                        case SDLK_LEFT:
+                    switch (e.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                        quit = 1;
+                        break;
+                    case SDLK_F1:
+                        SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
+                        machine_mode = GAME;
+                        break;
+                    case SDLK_F2:
+                        SDL_RenderSetLogicalSize(gRenderer,
+                                                 SCREEN_WIDTH, SCREEN_HEIGHT);
+                        machine_mode = EDITOR;
+                        break;
+                    case SDLK_F5:
+                        //save
+                        free(gScript);
+                        gScript = renderGapBuffer(gBuffer->contents);
+                        break;
+                    case SDLK_F6:
+                        // load
+                        Buffer_Clear(gBuffer);
+                        Insert_String(gBuffer, gScript);
+                        break;
+
+                    case SDLK_F9:
+                        // load
+                        ar_do_file(ES, "editor.lsp");
+                        Buffer_Clear(gBuffer);
+                        Insert_String(gBuffer, gScript);
+                        break;
+
+                    case SDLK_RETURN:
+                        Insert_Char(gBuffer, '\n');
+                        break;
+                    case SDLK_BACKSPACE:
+                        if (gBuffer->point > 0) {
                             Point_Move(gBuffer, -1);
-                            break;
-                        case SDLK_RIGHT:
-                            Point_Move(gBuffer, 1);
-                            break;
-                        case SDLK_UP:
-                            Search_Backward(gBuffer, "\n");
-                            break;
-                        case SDLK_DOWN:
-                            if (Search_Forward(gBuffer, "\n"))
-                                Point_Move(gBuffer, 1);
-                            break;
-                        case SDLK_HOME:
-                            Point_Set(gBuffer, 0);
-                            break;
-                        case SDLK_END:
-                            Point_Set(gBuffer, gBuffer->contents->count);
-                            break;
-                        default:
-                            if (e.key.keysym.mod & KMOD_SHIFT)
-                                mods |= 1;
-                            if (e.key.keysym.mod & KMOD_CTRL)
-                                mods |= 2;
-                            if (e.key.keysym.mod & KMOD_ALT)
-                                mods |= 4;
-                            printf("%d\n", mods);
-                            if (e.key.keysym.sym == SDLK_BACKSLASH) {
-                                snprintf(keystr, 63,
-                                         "(handle-key \"\\\\\" %d)",
-                                         mods);
-                            }
-                            else {
-                                snprintf(keystr, 63,
-                                         "(handle-key \"%c\" %d)",
-                                         e.key.keysym.sym,
-                                         mods);
-                            }
-                            ar_do_string(ES, keystr);
-                            break;
+                            Delete(gBuffer, 1);
                         }
+                        break;
+                    case SDLK_DELETE:
+                        if (gBuffer->point < gBuffer->contents->count) {
+                            Delete(gBuffer, 1);
+                        }
+                        break;
+                    case SDLK_LEFT:
+                        snprintf(keystr, 63,
+                                 "(handle-key \"<left>\" %d)",
+                                 mods);
+                        ar_do_string(ES, keystr);
+                        /* Point_Move(gBuffer, -1); */
+                        break;
+                    case SDLK_RIGHT:
+                        snprintf(keystr, 63,
+                                 "(handle-key \"<right>\" %d)",
+                                 mods);
+                        ar_do_string(ES, keystr);
+                        /* Point_Move(gBuffer, 1); */
+                        break;
+                    case SDLK_UP:
+                        snprintf(keystr, 63,
+                                 "(handle-key \"<up>\" %d)",
+                                 mods);
+                        ar_do_string(ES, keystr);
+                        /* Search_Backward(gBuffer, "\n"); */
+                        break;
+                    case SDLK_DOWN:
+                        snprintf(keystr, 63,
+                                 "(handle-key \"<down>\" %d)",
+                                 mods);
+                        ar_do_string(ES, keystr);
+                        /* if (Search_Forward(gBuffer, "\n")) */
+                        /*     Point_Move(gBuffer, 1); */
+                        break;
+                    case SDLK_HOME:
+                        Point_Set(gBuffer, 0);
+                        break;
+                    case SDLK_END:
+                        Point_Set(gBuffer, gBuffer->contents->count);
+                        break;
+                    default:
+                        if (e.key.keysym.mod & KMOD_SHIFT)
+                            mods |= 1;
+                        if (e.key.keysym.mod & KMOD_CTRL)
+                            mods |= 2;
+                        if (e.key.keysym.mod & KMOD_ALT)
+                            mods |= 4;
+                        printf("%d\n", mods);
+                        if (e.key.keysym.sym == SDLK_BACKSLASH) {
+                            snprintf(keystr, 63,
+                                     "(handle-key \"\\\\\" %d)",
+                                     mods);
+                        }
+                        else {
+                            snprintf(keystr, 63,
+                                     "(handle-key \"%c\" %d)",
+                                     e.key.keysym.sym,
+                                     mods);
+                        }
+                        ar_do_string(ES, keystr);
+                        break;
                     }
                 }
-
-                SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-                SDL_RenderClear(gRenderer);
-
-                // tell the buffer to draw to the terminal
-                Buffer_Render_Screen(gBuffer, gTerminal);
             }
 
-            //Update screen
-            SDL_RenderPresent(gRenderer);
-            ++countedFrames;
+            SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+            SDL_RenderClear(gRenderer);
 
-            //If frame finished early
-            int frameTicks = SDL_GetTicks() - startFrame;
-            if (frameTicks < SCREEN_TICKS_PER_FRAME) {
-                //Wait remaining time
-                SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
-            }
+            // tell the buffer to draw to the terminal
+            Buffer_Render_Screen(gBuffer, gTerminal);
+        }
+
+        //Update screen
+        SDL_RenderPresent(gRenderer);
+        ++countedFrames;
+
+        //If frame finished early
+        int frameTicks = SDL_GetTicks() - startFrame;
+        if (frameTicks < SCREEN_TICKS_PER_FRAME) {
+            //Wait remaining time
+            SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
         }
     }
 
