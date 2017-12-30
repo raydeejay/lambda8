@@ -1,6 +1,5 @@
 (do
-
-                                        ; core
+ ;; core
 
  (= caar (fn (x) (car (car x))))
  (= cadr (fn (x) (car (cdr x))))
