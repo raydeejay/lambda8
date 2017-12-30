@@ -316,7 +316,6 @@ char *strrpbrk(const char *s, const char *accept)
         }
         --last;
     }
-    printf("Exit...\n");
     return (char *) s;
 }
 
