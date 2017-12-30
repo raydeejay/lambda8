@@ -22,8 +22,8 @@
 //Screen dimension constants
 #define SCREEN_WIDTH 720
 #define SCREEN_HEIGHT 400
-#define GAL_WIDTH SCREEN_WIDTH
-#define GAL_HEIGHT SCREEN_HEIGHT
+#define L8_WIDTH SCREEN_WIDTH
+#define L8_HEIGHT SCREEN_HEIGHT
 #define SCREEN_FPS 60
 #define SCREEN_TICKS_PER_FRAME (1000 / SCREEN_FPS)
 
@@ -101,8 +101,8 @@ void GALRenderTerminal(terminal_t* term) {
     }
 }
 
-void GALRenderCursor(terminal_t *term) {
-    printText("_", term->column*10, term->row*14);
+void L8RenderCursor(terminal_t *term) {
+    printTextInverse("_", term->column*10, term->row*14);
 }
 
 
@@ -142,7 +142,7 @@ int init()
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-//    SDL_RenderSetLogicalSize(gRenderer, GAL_WIDTH, GAL_HEIGHT);
+//    SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
 
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
@@ -169,7 +169,7 @@ int init()
     gBuffer = Buffer_Create("scratch");
 
     // configure the terminal
-    gTerminal = newTerminal(72, 28, GALRenderTerminal, GALRenderCursor);
+    gTerminal = newTerminal(72, 28, L8RenderTerminal, L8RenderCursor);
 
     return 1;
 }
@@ -308,8 +308,8 @@ int main(int argc, char* argv[])
         ar_do_file(S, "lib.lsp");
 
         // initialise the environment
-        ar_bind_global(S, "SCREEN-WIDTH", ar_new_number(S, GAL_WIDTH));
-        ar_bind_global(S, "SCREEN-HEIGHT", ar_new_number(S, GAL_HEIGHT));
+        ar_bind_global(S, "SCREEN-WIDTH", ar_new_number(S, L8_WIDTH));
+        ar_bind_global(S, "SCREEN-HEIGHT", ar_new_number(S, L8_HEIGHT));
 
         ar_bind_global(S, "spr", ar_new_cfunc(S, f_spr));
         ar_bind_global(S, "pix", ar_new_cfunc(S, f_pix));
@@ -413,8 +413,8 @@ int main(int argc, char* argv[])
                 buttons = SDL_GetMouseState(&x, &y);
 
                 // scale the physical coordinates to logical coordinates
-                ar_bind_global(S, "MOUSEX", ar_new_number(S, x * GAL_WIDTH / SCREEN_WIDTH));
-                ar_bind_global(S, "MOUSEY", ar_new_number(S, y * GAL_HEIGHT / SCREEN_HEIGHT));
+                ar_bind_global(S, "MOUSEX", ar_new_number(S, x * L8_WIDTH / SCREEN_WIDTH));
+                ar_bind_global(S, "MOUSEY", ar_new_number(S, y * L8_HEIGHT / SCREEN_HEIGHT));
                 ar_bind_global(S, "BUTTONS", ar_new_number(S, buttons));
 
                 //Clear screen
