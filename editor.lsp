@@ -3,22 +3,48 @@
 (do
  (= char-forward
     (fn ()
-        (point-move 1)))
+        (point-move 1)
+        (= ideal-column nil)))
  
  (= char-backward
     (fn ()
-        (point-move -1)))
+        (point-move -1)
+        (= ideal-column nil)))
 
   (= word-forward
      (fn ()
-         (find-first-not-in-forward ",._ ")
-         (find-first-in-forward ",._ ")
+         (find-first-not-in-forward ",._ \n")
+         (find-first-in-forward ",._ \n")
          ))
  
   (= word-backward
      (fn ()
-         (find-first-not-in-backward ",._ ")
-         (find-first-in-backward ",._ ")))
+         (find-first-not-in-backward ",._ \n")
+         (find-first-in-backward ",._ \n")
+         (point-move 1)))
+
+  (= ideal-column nil)
+  
+  (= line-up
+     (fn ()
+         (when (not ideal-column)
+           (= ideal-column (get-column)))
+         (find-first-in-backward "\n")
+         (let (end (get-column))
+           (when (> end ideal-column)
+             (point-move (- 0 (- end ideal-column)))))))
+ 
+  (= line-down
+     (fn ()
+         (when (not ideal-column)
+           (= ideal-column (get-column)))
+         (point-move -1)
+         (find-first-in-forward "\n")
+         (find-first-in-forward "\n")
+         (when ideal-column
+           (let (end (get-column))
+             (when (< ideal-column end)
+               (point-move (- 0 (- end ideal-column))))))))
  
  (= keybindings
     (alist "a" t
@@ -117,6 +143,10 @@
            "C-b" char-backward
            "M-f" word-forward
            "M-b" word-backward
+           "<up>" line-up
+           "<down>" line-down
+           "<left>" char-backward
+           "<right>" char-forward
            ))
 
  (= shift-letter (fn (key) (upper key)))
@@ -161,4 +191,6 @@
              (if func
                  (if (is func t)
                      (insert-char k)
-                     (apply func))))))))
+                     (apply func)))))))
+
+  nil)

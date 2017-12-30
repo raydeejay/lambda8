@@ -5,17 +5,45 @@
 #include "lambda8.h"
 #include "aria.h"
 
+int palette[16][3] = {
+    {0x00, 0x00, 0x00}, /* BLACK */
+    {0x00, 0x00, 0x7F}, /*  */
+    {0x00, 0x7F, 0x00},
+    {0x00, 0x7F, 0x7F},
+    {0x7F, 0x00, 0x00},
+    {0x7F, 0x00, 0x7F},
+    {0x7F, 0x7F, 0x00},
+    {0x7F, 0x7F, 0x7F},
+    {0x7F, 0x7F, 0x7F}, /* GREY */
+    {0x7F, 0x7F, 0xFF}, /*  */
+    {0x7F, 0xFF, 0x7F},
+    {0x7F, 0xFF, 0xFF},
+    {0xFF, 0x7F, 0x7F},
+    {0xFF, 0x7F, 0xFF},
+    {0xFF, 0xFF, 0x7F},
+    {0xFF, 0xFF, 0xFF}
+};
+
 ar_Value *f_spr(ar_State *S, ar_Value *args) {
     int i = (int) ar_check_number(S, ar_car(args));
-    SDL_RenderCopy( gRenderer, gSprites[i], NULL, NULL );
+    int x = (int) ar_check_number(S, ar_nth(args, 1));
+    int y = (int) ar_check_number(S, ar_nth(args, 2));
+    int w = (int) ar_check_number(S, ar_nth(args, 3));
+    int h = (int) ar_check_number(S, ar_nth(args, 4));
+    SDL_Rect dst = {x, y, w, h};
+    
+    SDL_RenderCopy( gRenderer, gSprites[i],
+                    NULL,
+                    &dst /* NULL */ );
     return NULL;
 }
 
 ar_Value *f_pix(ar_State *S, ar_Value *args) {
     double a = ar_check_number(S, ar_car(args));
     double b = ar_check_number(S, ar_nth(args, 1));
+    int c = (int) ar_check_number(S, ar_nth(args, 2));
 
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
     SDL_RenderDrawPoint(gRenderer, a, b);
     return NULL;
 }
@@ -50,6 +78,8 @@ ar_Value *f_line(ar_State *S, ar_Value *args) {
 }
 
 ar_Value *f_cls(ar_State *S, ar_Value *args) {
+    int c = (int) ar_check_number(S, ar_car(args));
+    SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
     SDL_RenderClear( gRenderer );
     return NULL;
 }

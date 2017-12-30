@@ -20,10 +20,10 @@
 #include "aria.h"
 
 //Screen dimension constants
-#define SCREEN_WIDTH 720
-#define SCREEN_HEIGHT 400
-#define L8_WIDTH SCREEN_WIDTH
-#define L8_HEIGHT SCREEN_HEIGHT
+#define SCREEN_WIDTH 768
+#define SCREEN_HEIGHT 384
+#define L8_WIDTH 256
+#define L8_HEIGHT 128
 #define SCREEN_FPS 60
 #define SCREEN_TICKS_PER_FRAME (1000 / SCREEN_FPS)
 
@@ -157,7 +157,7 @@ int init()
 
     SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
-//    SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
+    SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
 
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
@@ -264,6 +264,10 @@ ar_Value *f_point_move(ar_State *S, ar_Value *args) {
     int amount = (int) ar_check_number(S, ar_car(args));
     Point_Move(gBuffer, amount);
     return NULL;
+}
+
+ar_Value *f_get_column(ar_State *S, ar_Value *args) {
+    return ar_new_number(S, Get_Column(gBuffer));
 }
 
 ar_Value *f_find_first_in_forward(ar_State *S, ar_Value *args) {
