@@ -54,9 +54,6 @@ TTF_Font *gFont = NULL;
 SDL_Texture *gSprites[MAX_SPRITES] = { NULL };
 int gMaxSprite = -1;
 
-// The background image
-SDL_Texture *gBackground = NULL;
-
 // Sound effects, not sure about the limit yet
 Mix_Chunk *gSfx[72] = { NULL };
 int gMaxSfx = -1;
@@ -198,11 +195,6 @@ void myclose()
     free(gBuffer);
 
     //Free loaded images
-    if (gBackground) {
-        SDL_DestroyTexture(gBackground);
-        gBackground = NULL;
-    }
-
     for (int i = 0; gSprites[i]; ++i) {
         if (gSprites[i]) {
             SDL_DestroyTexture(gSprites[i]);
@@ -438,9 +430,6 @@ int main(int argc, char* argv[])
                 //Clear screen
                 SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
                 SDL_RenderClear(gRenderer);
-
-                if (gBackground)
-                    SDL_RenderCopy(gRenderer, gBackground, NULL, NULL);
 
                 // run lisp
                 ar_do_string(S, "(update)");
