@@ -17,7 +17,7 @@ clean:
 check-syntax:
 	${CC} -Wall -pedantic ${CFLAGS} -o nul -S ${CHK_SOURCES}
 
-make.depend: aria.c main.c aria.h api.c api.h nanosvg.h nanosvgrast.h gapbuffer.h gapbuffer.c buffer.h buffer.c terminal.h terminal.c
+make.depend: aria.c main.c aria.h api.c api.hgapbuffer.h gapbuffer.c buffer.h buffer.c terminal.h terminal.c
 	touch make.depend
 	makedepend -I/usr/include/linux -I/usr/lib/gcc/x86_64-linux-gnu/5/include/ -fmake.depend $^
 

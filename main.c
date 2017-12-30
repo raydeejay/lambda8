@@ -89,8 +89,26 @@ void printText(const char *str, int x, int y) {
     SDL_FreeSurface(surface);
 }
 
+void printTextInverse(const char *str, int x, int y) {
+    SDL_Color color = { 0, 255, 255 };
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
+    SDL_Surface *surface = TTF_RenderText_Blended(gFont, str, color);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+
+    int texW = 0;
+    int texH = 0;
+    SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+    SDL_Rect rect = {x, y, texW, texH};
+    SDL_RenderCopy(gRenderer, texture, NULL, &rect);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+}
+
 // FIXME get the size from the font iself... or something
-void GALRenderTerminal(terminal_t* term) {
+void L8RenderTerminal(terminal_t* term) {
     // print line by line
     for (int i = 0, y = 0; i < term->w * term->h; i += term->w) {
         char *str = strndup(&term->buffer[i], term->w);

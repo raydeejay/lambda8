@@ -3,9 +3,6 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "nanosvg.h"
-#include "nanosvgrast.h"
-
 extern SDL_Window* gWindow;
 
 extern SDL_Renderer* gRenderer;
