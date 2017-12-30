@@ -1,0 +1,7 @@
+/lambda8
+*.o
+/make.depend
+/make.depend.bak
+/nul
+/tmpfile.lsp
+/TAGS
