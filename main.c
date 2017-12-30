@@ -139,7 +139,7 @@ int init()
     /*     printf("Warning: Linear texture filtering not enabled!"); */
     /* } */
 
-    gWindow = SDL_CreateWindow("Game & Lisp",
+    gWindow = SDL_CreateWindow("Lambda/8",
                                 SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                 SCREEN_WIDTH, SCREEN_HEIGHT,
                                 SDL_WINDOW_SHOWN);
