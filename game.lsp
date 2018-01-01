@@ -1,7 +1,3 @@
-;; (import (srfi 1))
-;; (import (srfi 27))
-;; (import (srfi 33))
-
 (begin 
   (display "loading\n")
 
