@@ -209,7 +209,7 @@ status_t Delete(buffer_t *buf, int count) {
     else return 0;
 }
 
-status_t Search_Forward(buffer_t *buf, char *string) {
+status_t Search_Forward(buffer_t *buf, const char *string) {
     char *str = renderGapBuffer(buf->contents);
     char *pos = strstr(str + buf->point, string);
     int success = 0;
@@ -249,7 +249,7 @@ char *rstrstr(char *__restrict s1, char *__restrict s2)
     return NULL;
 }
 
-status_t Search_Backward(buffer_t *buf, char *string) {
+status_t Search_Backward(buffer_t *buf, const char *string) {
     char *str = renderGapBuffer(buf->contents);
     char *sstr = strndup(str, buf->point); /* cut the string inorder to search backwards */
 
@@ -265,7 +265,7 @@ status_t Search_Backward(buffer_t *buf, char *string) {
     return pos ? 1 : 0;
 }
 
-status_t Find_First_In_Forward(buffer_t *buf, char *string) {
+status_t Find_First_In_Forward(buffer_t *buf, const char *string) {
     char *str = Buffer_Render(buf);
     char *pos = strpbrk(str + buf->point + 1, string);
 
@@ -347,7 +347,7 @@ char *strcrpbrk(const char *s, const char *reject)
 
 
 
-status_t Find_First_In_Backward(buffer_t *buf, char *string) {
+status_t Find_First_In_Backward(buffer_t *buf, const char *string) {
     char *str = Buffer_Render(buf);
     char *sstr = strndup(str, buf->point); /* cut the string inorder to search backwards */
 
@@ -362,7 +362,7 @@ status_t Find_First_In_Backward(buffer_t *buf, char *string) {
     return pos ? 1 : 0;
 }
 
-status_t Find_First_Not_In_Forward(buffer_t *buf, char *string) {
+status_t Find_First_Not_In_Forward(buffer_t *buf, const char *string) {
     char *str = Buffer_Render(buf);
     char *pos = strcpbrk(str + buf->point, string);
 
@@ -374,7 +374,7 @@ status_t Find_First_Not_In_Forward(buffer_t *buf, char *string) {
     return pos ? 1 : 0;
 }
 
-status_t Find_First_Not_In_Backward(buffer_t *buf, char *string) {
+status_t Find_First_Not_In_Backward(buffer_t *buf, const char *string) {
     char *str = Buffer_Render(buf);
     char *sstr = strndup(str, buf->point); /* cut the string inorder to search backwards */
 

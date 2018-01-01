@@ -2,8 +2,11 @@
  ** HOOKS
  *************************************/
 
+#include "s7.h"
+
 #include "lambda8.h"
-#include "aria.h"
+
+#include "api.h"
 
 int palette[16][3] = {
     {0x00, 0x00, 0x00}, /* BLACK */
@@ -13,81 +16,56 @@ int palette[16][3] = {
     {0x7F, 0x00, 0x00},
     {0x7F, 0x00, 0x7F},
     {0x7F, 0x7F, 0x00},
-    {0x7F, 0x7F, 0x7F},
-    {0x7F, 0x7F, 0x7F}, /* GREY */
+    {0x7F, 0x7F, 0x7F}, /* watered white */
+    {0x4F, 0x4F, 0x4F}, /* GREY */
     {0x7F, 0x7F, 0xFF}, /*  */
     {0x7F, 0xFF, 0x7F},
     {0x7F, 0xFF, 0xFF},
     {0xFF, 0x7F, 0x7F},
     {0xFF, 0x7F, 0xFF},
-    {0xFF, 0xFF, 0x7F},
+    {0xFF, 0xFF, 0x7F}, /* YELLOW */
     {0xFF, 0xFF, 0xFF}
 };
 
-ar_Value *f_spr(ar_State *S, ar_Value *args) {
-    int i = (int) ar_check_number(S, ar_car(args));
-    int x = (int) ar_check_number(S, ar_nth(args, 1));
-    int y = (int) ar_check_number(S, ar_nth(args, 2));
-    int w = (int) ar_check_number(S, ar_nth(args, 3));
-    int h = (int) ar_check_number(S, ar_nth(args, 4));
+s7_pointer l8_pix(s7_scheme *sc, s7_pointer args) {
+    double x = s7_number_to_real(sc, s7_car(args));
+    double y = s7_number_to_real(sc, s7_cadr(args));
+    int c = (int) s7_number_to_real(sc, s7_caddr(args));
+
+    SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
+    SDL_RenderDrawPoint(gRenderer, x, y);
+
+    return s7_make_integer(sc, 1);
+}
+
+s7_pointer l8_printxy(s7_scheme *sc, s7_pointer args) {
+    const char *str = s7_string(s7_car(args));
+    double x = s7_number_to_real(sc, s7_cadr(args));
+    double y = s7_number_to_real(sc, s7_caddr(args));
+    printText(str, x, y);
+
+    return s7_make_integer(sc, 1);
+}
+
+s7_pointer l8_spr(s7_scheme *sc, s7_pointer args) {
+    double i = s7_number_to_real(sc, s7_car(args));
+    double x = s7_number_to_real(sc, s7_cadr(args));
+    double y = s7_number_to_real(sc, s7_caddr(args));
+    double w = s7_number_to_real(sc, s7_cadddr(args));
+    double h = s7_number_to_real(sc, s7_car(s7_cddddr(args)));
     SDL_Rect dst = {x, y, w, h};
     
-    SDL_RenderCopy( gRenderer, gSprites[i],
+    SDL_RenderCopy( gRenderer, gSprites[(int) i],
                     NULL,
                     &dst /* NULL */ );
-    return NULL;
+
+    return s7_make_integer(sc, 1);
 }
 
-ar_Value *f_pix(ar_State *S, ar_Value *args) {
-    double a = ar_check_number(S, ar_car(args));
-    double b = ar_check_number(S, ar_nth(args, 1));
-    int c = (int) ar_check_number(S, ar_nth(args, 2));
-
-    SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
-    SDL_RenderDrawPoint(gRenderer, a, b);
-    return NULL;
-}
-
-ar_Value *f_rect(ar_State *S, ar_Value *args) {
-    double a = ar_check_number(S, ar_car(args));
-    double b = ar_check_number(S, ar_nth(args, 1));
-    double c = ar_check_number(S, ar_nth(args, 2));
-    double d = ar_check_number(S, ar_nth(args, 3));
-
-    SDL_Rect dstrect;
-
-    dstrect.x = a;
-    dstrect.y = b;
-    dstrect.w = c;
-    dstrect.h = d;
-
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-    SDL_RenderDrawRect(gRenderer, &dstrect);
-    return NULL;
-}
-
-ar_Value *f_line(ar_State *S, ar_Value *args) {
-    double a = ar_check_number(S, ar_car(args));
-    double b = ar_check_number(S, ar_nth(args, 1));
-    double c = ar_check_number(S, ar_nth(args, 2));
-    double d = ar_check_number(S, ar_nth(args, 3));
-
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-    SDL_RenderDrawLine(gRenderer, a, b, c, d);
-    return NULL;
-}
-
-ar_Value *f_cls(ar_State *S, ar_Value *args) {
-    int c = (int) ar_check_number(S, ar_car(args));
-    SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
-    SDL_RenderClear( gRenderer );
-    return NULL;
-}
-
-ar_Value *f_define_sprite(ar_State *S, ar_Value *args) {
-    char *id = ar_check(S, ar_car(args), AR_TSTRING)->u.str.s;
+s7_pointer l8_define_sprite(s7_scheme *sc, s7_pointer args) {
+    const char *id = s7_string(s7_car(args));
     int success = 1;
-
+    
     SDL_Surface *surf = IMG_Load(id);
     if (surf == NULL) {
         printf("Error creating surface for %s\n", id);
@@ -106,11 +84,11 @@ ar_Value *f_define_sprite(ar_State *S, ar_Value *args) {
 
     SDL_FreeSurface(surf);
 
-    return success ? ar_new_number(S, gMaxSprite) : NULL;
+    return s7_make_integer(sc, success ? gMaxSprite : -1);
 }
 
-ar_Value *f_define_sfx(ar_State *S, ar_Value *args) {
-    char *id = ar_check(S, ar_car(args), AR_TSTRING)->u.str.s;
+s7_pointer l8_define_sfx(s7_scheme *sc, s7_pointer args) {
+    const char *id = s7_string(s7_car(args));
     int success = 1;
 
     ++gMaxSfx;
@@ -122,21 +100,74 @@ ar_Value *f_define_sfx(ar_State *S, ar_Value *args) {
         success = 0;
     }
 
-    return success ? ar_new_number(S, gMaxSfx) : NULL;
+    return success ? s7_make_integer(sc, gMaxSfx) : s7_nil(sc);
 }
 
-ar_Value *f_sfx(ar_State *S, ar_Value *args) {
-    int i = (int) ar_check_number(S, ar_car(args));
+s7_pointer l8_sfx(s7_scheme *sc, s7_pointer args) {
+    int i = s7_integer(s7_car(args));
     Mix_PlayChannel(-1, gSfx[i], 0);
     return NULL;
 }
 
-ar_Value *f_printxy(ar_State *S, ar_Value *args) {
-    size_t len;
-    const char *str = ar_to_stringl(S, ar_car(args), &len);
-    double x = ar_check_number(S, ar_nth(args, 1));
-    double y = ar_check_number(S, ar_nth(args, 2));
-    printText(str, x, y);
+s7_pointer l8_rect(s7_scheme *sc, s7_pointer args) {
+    double a = s7_number_to_real(sc, s7_car(args));
+    double b = s7_number_to_real(sc, s7_cadr(args));
+    double c = s7_number_to_real(sc, s7_caddr(args));
+    double d = s7_number_to_real(sc, s7_cadddr(args));
 
+    SDL_Rect dstrect;
+
+    dstrect.x = a;
+    dstrect.y = b;
+    dstrect.w = c;
+    dstrect.h = d;
+
+    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_RenderDrawRect(gRenderer, &dstrect);
     return NULL;
+}
+
+s7_pointer l8_line(s7_scheme *sc, s7_pointer args) {
+    double a = s7_number_to_real(sc, s7_car(args));
+    double b = s7_number_to_real(sc, s7_cadr(args));
+    double c = s7_number_to_real(sc, s7_caddr(args));
+    double d = s7_number_to_real(sc, s7_cadddr(args));
+
+    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_RenderDrawLine(gRenderer, a, b, c, d);
+    return NULL;
+}
+
+s7_pointer l8_cls(s7_scheme *sc, s7_pointer args) {
+    int c = s7_integer(s7_car(args));
+    SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
+    SDL_RenderClear(gRenderer);
+    return NULL;
+}
+
+
+typedef s7_pointer (*l8_func)(s7_scheme *sc, s7_pointer args);
+
+struct { const char *name; l8_func fn; int nargs; int optargs; bool restargs; const char *doc; } l8_prims[] = {
+    { "define-sprite", l8_define_sprite, 1, 0, false, "(define-sprite filename) Loads an image from filename, makes a texture and registers it, returning it's handle" },
+    { "spr",           l8_spr,           5, 0, false, "(spr id x y w h) Blits sprite id at x,y with size w,h" },
+    { "pix",           l8_pix,           3, 0, false, "(pix x y c) Sets the pixel at x,y to color c" },
+
+    { "define-sfx",    l8_define_sfx,    1, 0, false, "(define-sfx filename) Loads a sound effect from filename, returning it's handle" },
+    { "sfx",           l8_sfx,           1, 0, false, "(sfx id) Plays the sound efect with number id" },
+
+    { "printxy",       l8_printxy,       3, 0, false, "(printxy text x y) Prints text at x,y using the current color" },
+
+    { NULL, NULL, 0, 0, false, NULL }
+};
+
+void initMachineLisp(s7_scheme *sc) {
+    // initialise the environment
+    s7_define_variable(sc, "SCREEN-WIDTH", s7_make_integer(sc, L8_WIDTH));
+    s7_define_variable(sc, "SCREEN-HEIGHT", s7_make_integer(sc, L8_HEIGHT));
+
+    // register the functions
+    for (int i = 0; l8_prims[i].name; ++i) {
+        s7_define_function(sc, l8_prims[i].name, l8_prims[i].fn, l8_prims[i].nargs, l8_prims[i].optargs, l8_prims[i].restargs, l8_prims[i].doc);
+    }
 }

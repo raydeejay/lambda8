@@ -1,14 +1,26 @@
-#include "aria.h"
+#ifndef L8_API_H_
+#define L8_API_H_
 
-extern ar_Value *f_spr(ar_State *S, ar_Value *args);
-extern ar_Value *f_pix(ar_State *S, ar_Value *args);
-extern ar_Value *f_rect(ar_State *S, ar_Value *args);
-extern ar_Value *f_line(ar_State *S, ar_Value *args);
+#include "s7.h"
 
-extern ar_Value *f_cls(ar_State *S, ar_Value *args);
+//Screen dimension constants
+#define SCREEN_WIDTH 768
+#define SCREEN_HEIGHT 384
+#define L8_WIDTH 256
+#define L8_HEIGHT 128
+#define SCREEN_FPS 60
+#define SCREEN_TICKS_PER_FRAME (1000 / SCREEN_FPS)
 
-extern ar_Value *f_define_sprite(ar_State *S, ar_Value *args);
-extern ar_Value *f_define_sfx(ar_State *S, ar_Value *args);
-extern ar_Value *f_sfx(ar_State *S, ar_Value *args);
+extern s7_pointer l8_pix(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_spr(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_printxy(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_define_sprite(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_define_sfx(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_sfx(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_rect(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_line(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_cls(s7_scheme *sc, s7_pointer args);
 
-extern ar_Value *f_printxy(ar_State *S, ar_Value *args);
+extern void initMachineLisp(s7_scheme *s7);
+
+#endif // L8_API_H_

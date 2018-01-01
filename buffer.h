@@ -137,13 +137,13 @@ extern "C" {
     status_t Delete_Region(const char *mark_name);
     status_t Copy_Region(const char *buffer_name, char *mark_name);
 
-    extern status_t Search_Forward(buffer_t *buf, char *string);
-    extern status_t Search_Backward(buffer_t *buf, char *string);
+    extern status_t Search_Forward(buffer_t *buf, const char *string);
+    extern status_t Search_Backward(buffer_t *buf, const char *string);
     flag_t Is_A_Match(char *string);
-    extern status_t Find_First_In_Forward(buffer_t *buf, char *string);
-    extern status_t Find_First_In_Backward(buffer_t *buf, char *string);
-    extern status_t Find_First_Not_In_Forward(buffer_t *buf, char *string);
-    extern status_t Find_First_Not_In_Backward(buffer_t *buf, char *string);
+    extern status_t Find_First_In_Forward(buffer_t *buf, const char *string);
+    extern status_t Find_First_In_Backward(buffer_t *buf, const char *string);
+    extern status_t Find_First_Not_In_Forward(buffer_t *buf, const char *string);
+    extern status_t Find_First_Not_In_Backward(buffer_t *buf, const char *string);
 
     extern int Get_Column(buffer_t *buf);
     void Set_Column(int column, flag_t round);
