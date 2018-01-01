@@ -114,15 +114,11 @@ s7_pointer l8_rect(s7_scheme *sc, s7_pointer args) {
     double b = s7_number_to_real(sc, s7_cadr(args));
     double c = s7_number_to_real(sc, s7_caddr(args));
     double d = s7_number_to_real(sc, s7_cadddr(args));
+    int n = s7_integer(s7_car(s7_cddddr(args)));
 
-    SDL_Rect dstrect;
+    SDL_Rect dstrect = { a, b, c, d };
 
-    dstrect.x = a;
-    dstrect.y = b;
-    dstrect.w = c;
-    dstrect.h = d;
-
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
     SDL_RenderDrawRect(gRenderer, &dstrect);
     return NULL;
 }
@@ -132,8 +128,9 @@ s7_pointer l8_line(s7_scheme *sc, s7_pointer args) {
     double b = s7_number_to_real(sc, s7_cadr(args));
     double c = s7_number_to_real(sc, s7_caddr(args));
     double d = s7_number_to_real(sc, s7_cadddr(args));
+    int n = s7_integer(s7_car(s7_cddddr(args)));
 
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
     SDL_RenderDrawLine(gRenderer, a, b, c, d);
     return NULL;
 }
@@ -150,13 +147,16 @@ typedef s7_pointer (*l8_func)(s7_scheme *sc, s7_pointer args);
 
 struct { const char *name; l8_func fn; int nargs; int optargs; bool restargs; const char *doc; } l8_prims[] = {
     { "define-sprite", l8_define_sprite, 1, 0, false, "(define-sprite filename) Loads an image from filename, makes a texture and registers it, returning it's handle" },
-    { "spr",           l8_spr,           5, 0, false, "(spr id x y w h) Blits sprite id at x,y with size w,h" },
-    { "pix",           l8_pix,           3, 0, false, "(pix x y c) Sets the pixel at x,y to color c" },
+    { "spr",           l8_spr,        5, 0, false, "(spr id x y w h) Blits sprite id at x,y with size w,h" },
+    { "pix",           l8_pix,        3, 0, false, "(pix x y c) Sets the pixel at x,y to color c" },
 
-    { "define-sfx",    l8_define_sfx,    1, 0, false, "(define-sfx filename) Loads a sound effect from filename, returning it's handle" },
-    { "sfx",           l8_sfx,           1, 0, false, "(sfx id) Plays the sound efect with number id" },
+    { "define-sfx",    l8_define_sfx, 1, 0, false, "(define-sfx filename) Loads a sound effect from filename, returning it's handle" },
+    { "sfx",           l8_sfx,        1, 0, false, "(sfx id) Plays the sound efect with number id" },
 
-    { "printxy",       l8_printxy,       3, 0, false, "(printxy text x y) Prints text at x,y using the current color" },
+    { "printxy", l8_printxy, 3, 0, false, "(printxy text x y) Prints text at x,y" },
+    { "line",           l8_line,        5, 0, false, "(line x y x2 y2) Draws a line from x,y to x2,y2 in color c" },
+    { "rect",           l8_rect,        5, 0, false, "(rect x y w h) Draws a rectangle at x,y size w,h in color c" },
+    { "cls",     l8_cls,     1, 0, false, "(cls n) Clears the screen using color n" },
 
     { NULL, NULL, 0, 0, false, NULL }
 };
