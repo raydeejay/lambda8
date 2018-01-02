@@ -11,6 +11,8 @@
 #define SCREEN_FPS 60
 #define SCREEN_TICKS_PER_FRAME (1000 / SCREEN_FPS)
 
+extern s7_pointer l8_time(s7_scheme *sc, s7_pointer args);
+
 extern s7_pointer l8_pix(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_spr(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_printxy(s7_scheme *sc, s7_pointer args);
