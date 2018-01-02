@@ -1,0 +1,21 @@
+(begin
+  (define HALF_SCR_W (/ SCREEN-WIDTH 2))
+  (define HALF_SCR_H (/ SCREEN-HEIGHT 2))
+  (define DEVIATION 150)
+  (define SPEED (/ 1 180))
+  (define RECT_COUNT 100)
+  (define RECT_STEP 4)
+  (define RECT_COLOR 8)
+
+  (define (update)
+    (cls 0)
+    (do ((i 1 (+ i 1)))
+        ((> i RECT_COUNT))
+      (let* ((width (* i RECT_STEP))
+             (height (/ width 2))
+             (slowedTime (* (time) SPEED))
+             (x (- (* (sin slowedTime) (/ DEVIATION i)) (/ width 2)))
+             (y (- (* (cos slowedTime) (/ DEVIATION i)) (/ height 2))))
+        (rect (+ HALF_SCR_W x) (+ HALF_SCR_H y) width height RECT_COLOR))))
+
+  "rect demo loaded\n")
