@@ -180,4 +180,8 @@ void initMachineLisp(s7_scheme *sc) {
     for (int i = 0; l8_prims[i].name; ++i) {
         s7_define_function(sc, l8_prims[i].name, l8_prims[i].fn, l8_prims[i].nargs, l8_prims[i].optargs, l8_prims[i].restargs, l8_prims[i].doc);
     }
+
+    // load the core library
+    // notice that it redefines some primitives...
+    s7_load(sc, "core.lisp");
 }
