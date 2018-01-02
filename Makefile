@@ -1,6 +1,6 @@
 BINARY=lambda8
 CC=gcc
-CFLAGS=-O3 -g -Wall -pedantic `sdl2-config --cflags`
+CFLAGS=-O2 -g -Wall -pedantic `sdl2-config --cflags`
 LDFLAGS=-lm `sdl2-config --libs` -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 .PHONY: clean
