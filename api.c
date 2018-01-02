@@ -2,6 +2,8 @@
  ** HOOKS
  *************************************/
 
+#include <sys/time.h>
+
 #include "s7.h"
 
 #include "lambda8.h"
@@ -26,6 +28,12 @@ int palette[16][3] = {
     {0xFF, 0xFF, 0x7F}, /* YELLOW */
     {0xFF, 0xFF, 0xFF}
 };
+
+s7_pointer l8_time(s7_scheme *sc, s7_pointer args) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return s7_make_integer(sc, tv.tv_usec / 1000);
+}
 
 s7_pointer l8_pix(s7_scheme *sc, s7_pointer args) {
     double x = s7_number_to_real(sc, s7_car(args));
@@ -146,6 +154,8 @@ s7_pointer l8_cls(s7_scheme *sc, s7_pointer args) {
 typedef s7_pointer (*l8_func)(s7_scheme *sc, s7_pointer args);
 
 struct { const char *name; l8_func fn; int nargs; int optargs; bool restargs; const char *doc; } l8_prims[] = {
+    { "time",     l8_time,     0, 0, false, "Returns the time in milliseconds (TBI from the start of the FC)" },
+
     { "define-sprite", l8_define_sprite, 1, 0, false, "(define-sprite filename) Loads an image from filename, makes a texture and registers it, returning it's handle" },
     { "spr",           l8_spr,        5, 0, false, "(spr id x y w h) Blits sprite id at x,y with size w,h" },
     { "pix",           l8_pix,        3, 0, false, "(pix x y c) Sets the pixel at x,y to color c" },
