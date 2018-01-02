@@ -270,9 +270,9 @@ int main(int argc, char* argv[]) {
         exit(-1);
     }
 
-    // init the machine; sLisp
+    // init the machine's Lisp
     initMachineLisp(sc);
-    load_script(sc, "game.lsp");
+    load_script(sc, gScriptFilename);
 
     // init the editor's Lisp
     initEditorLisp(ES);
