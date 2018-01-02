@@ -35,6 +35,11 @@ These are the available primitives in Lisp:
 
 - (rect x y x2 y2 c)
 
+  Draws a filled rectangle from x,y to x2,y2 using color c
+
+
+- (rectb x y x2 y2 c)
+
   Draws a rectangle from x,y to x2,y2 using color c
 
 
