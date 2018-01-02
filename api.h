@@ -4,10 +4,10 @@
 #include "s7.h"
 
 //Screen dimension constants
-#define SCREEN_WIDTH 768
-#define SCREEN_HEIGHT 384
-#define L8_WIDTH 256
-#define L8_HEIGHT 128
+#define L8_WIDTH 320
+#define L8_HEIGHT 200
+#define SCREEN_WIDTH (L8_WIDTH * 2)
+#define SCREEN_HEIGHT (L8_HEIGHT * 2)
 #define SCREEN_FPS 60
 #define SCREEN_TICKS_PER_FRAME (1000 / SCREEN_FPS)
 

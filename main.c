@@ -100,14 +100,14 @@ void L8RenderTerminal(terminal_t* term) {
     for (int i = 0, y = 0; i < term->w * term->h; i += term->w) {
         char *str = strndup(&term->buffer[i], term->w);
 
-        printText(str, 0, y*14);
+        printText(str, 0, y*8);
         ++y;
         free(str);
     }
 }
 
 void L8RenderCursor(terminal_t *term) {
-    printTextInverse("_", term->column*10, term->row*14);
+    printTextInverse("_", term->column*8, term->row*8);
 }
 
 
@@ -139,7 +139,7 @@ int init()
         return 0;
     }
 
-    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED /* | SDL_RENDERER_PRESENTVSYNC */);
     if (gRenderer == NULL) {
         printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
         return 0;
@@ -165,7 +165,7 @@ int init()
         return 0;
     }
 
-    if ((gFont = TTF_OpenFont("font.ttf", 16)) == NULL) {
+    if ((gFont = TTF_OpenFont("font.ttf", 8)) == NULL) {
         printf("TTF font could not initialize! SDL_image Error: %s\n", TTF_GetError());
         return 0;
     }
@@ -174,7 +174,7 @@ int init()
     gBuffer = Buffer_Create("scratch");
 
     // configure the terminal
-    gTerminal = newTerminal(72, 28, L8RenderTerminal, L8RenderCursor);
+    gTerminal = newTerminal(40, 25, L8RenderTerminal, L8RenderCursor);
 
     return 1;
 }
@@ -313,13 +313,13 @@ int main(int argc, char* argv[]) {
                         }
                         break;
                     case SDLK_F1:
-                        SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
+                        //SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
                         machine_mode = GAME;
                         break;
                     case SDLK_F2:
                         machine_mode = EDITOR;
-                        SDL_RenderSetLogicalSize(gRenderer,
-                                                 SCREEN_WIDTH, SCREEN_HEIGHT);
+                        /* SDL_RenderSetLogicalSize(gRenderer, */
+                        /*                          SCREEN_WIDTH, SCREEN_HEIGHT); */
                         Buffer_Clear(gBuffer);
                         Insert_String(gBuffer, gScript);
                         Set_Modified(gBuffer, 0);
@@ -387,12 +387,12 @@ int main(int argc, char* argv[]) {
                         quit = 1;
                         break;
                     case SDLK_F1:
-                        SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT);
+                        /* SDL_RenderSetLogicalSize(gRenderer, L8_WIDTH, L8_HEIGHT); */
                         machine_mode = GAME;
                         break;
                     case SDLK_F2:
-                        SDL_RenderSetLogicalSize(gRenderer,
-                                                 SCREEN_WIDTH, SCREEN_HEIGHT);
+                        /* SDL_RenderSetLogicalSize(gRenderer, */
+                        /*                          SCREEN_WIDTH, SCREEN_HEIGHT); */
                         machine_mode = EDITOR;
                         break;
                     case SDLK_F5:
