@@ -20,6 +20,7 @@ extern s7_pointer l8_define_sprite(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_define_sfx(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_sfx(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_rect(s7_scheme *sc, s7_pointer args);
+extern s7_pointer l8_rectb(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_line(s7_scheme *sc, s7_pointer args);
 extern s7_pointer l8_cls(s7_scheme *sc, s7_pointer args);
 

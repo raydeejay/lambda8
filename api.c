@@ -127,6 +127,20 @@ s7_pointer l8_rect(s7_scheme *sc, s7_pointer args) {
     SDL_Rect dstrect = { a, b, c, d };
 
     SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
+    SDL_RenderFillRect(gRenderer, &dstrect);
+    return s7_t(sc);
+}
+
+s7_pointer l8_rectb(s7_scheme *sc, s7_pointer args) {
+    double a = s7_number_to_real(sc, s7_car(args));
+    double b = s7_number_to_real(sc, s7_cadr(args));
+    double c = s7_number_to_real(sc, s7_caddr(args));
+    double d = s7_number_to_real(sc, s7_cadddr(args));
+    int n = s7_integer(s7_car(s7_cddddr(args)));
+
+    SDL_Rect dstrect = { a, b, c, d };
+
+    SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
     SDL_RenderDrawRect(gRenderer, &dstrect);
     return s7_t(sc);
 }
@@ -165,7 +179,8 @@ struct { const char *name; l8_func fn; int nargs; int optargs; bool restargs; co
 
     { "printxy", l8_printxy, 3, 0, false, "(printxy text x y) Prints text at x,y" },
     { "line",           l8_line,        5, 0, false, "(line x y x2 y2) Draws a line from x,y to x2,y2 in color c" },
-    { "rect",           l8_rect,        5, 0, false, "(rect x y w h) Draws a rectangle at x,y size w,h in color c" },
+    { "rect",           l8_rect,        5, 0, false, "(rect x y w h) Draws a filled rectangle at x,y size w,h in color c" },
+    { "rectb",          l8_rectb,       5, 0, false, "(rectb x y w h) Draws a rectangle at x,y size w,h in color c" },
     { "cls",     l8_cls,     1, 0, false, "(cls n) Clears the screen using color n" },
 
     { NULL, NULL, 0, 0, false, NULL }
