@@ -114,7 +114,7 @@ s7_pointer l8_define_sfx(s7_scheme *sc, s7_pointer args) {
 s7_pointer l8_sfx(s7_scheme *sc, s7_pointer args) {
     int i = s7_integer(s7_car(args));
     Mix_PlayChannel(-1, gSfx[i], 0);
-    return NULL;
+    return s7_t(sc);
 }
 
 s7_pointer l8_rect(s7_scheme *sc, s7_pointer args) {
@@ -128,7 +128,7 @@ s7_pointer l8_rect(s7_scheme *sc, s7_pointer args) {
 
     SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
     SDL_RenderDrawRect(gRenderer, &dstrect);
-    return NULL;
+    return s7_t(sc);
 }
 
 s7_pointer l8_line(s7_scheme *sc, s7_pointer args) {
@@ -140,14 +140,14 @@ s7_pointer l8_line(s7_scheme *sc, s7_pointer args) {
 
     SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
     SDL_RenderDrawLine(gRenderer, a, b, c, d);
-    return NULL;
+    return s7_t(sc);
 }
 
 s7_pointer l8_cls(s7_scheme *sc, s7_pointer args) {
     int c = s7_integer(s7_car(args));
     SDL_SetRenderDrawColor(gRenderer, palette[c][0], palette[c][1], palette[c][2], 255);
     SDL_RenderClear(gRenderer);
-    return NULL;
+    return s7_t(sc);
 }
 
 
