@@ -354,8 +354,8 @@ int main(int argc, char* argv[]) {
             //ar_bind_global(S, "BUTTONS", ar_new_number(S, buttons));
 
             //Clear screen
-            SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
-            SDL_RenderClear(gRenderer);
+            //SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+            //SDL_RenderClear(gRenderer);
 
             // run lisp
             s7_call(sc, s7_name_to_value(sc, "update"), s7_nil(sc));
