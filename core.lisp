@@ -32,6 +32,20 @@
                   (else (set! x (+ x dx2))
                         (set! y (+ y dy2)))))))))
 
+  ;; brute force algorithm which performs at least 3x as fast as Bresenham's
+  (define (circ x0 y0 radius c)
+    (do ((y (- radius) (+ y 1))) ((> y radius))
+      (do ((x (- radius) (+ x 1))) ((> x radius))
+        (when (< (+ (* x x) (* y y)) (+ (* radius radius) radius))
+              (pix (+ x0 x) (+ y0 y) c)))))
+
+  (define (circb x0 y0 radius c)
+    (do ((y (- radius) (+ y 1))) ((> y radius))
+      (do ((x (- radius) (+ x 1))) ((> x radius))
+        (when (and (> (+ (* x x) (* y y)) (- (* radius radius) radius))
+                   (< (+ (* x x) (* y y)) (+ (* radius radius) radius)))
+              (pix (+ x0 x) (+ y0 y) c)))))
+
   ;; these could be implemented in C, but if there's no need, there's no need
   (define (filter p ls)
     (let ((result (list)))

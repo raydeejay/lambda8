@@ -32,7 +32,7 @@ int palette[16][3] = {
 s7_pointer l8_time(s7_scheme *sc, s7_pointer args) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return s7_make_integer(sc, tv.tv_usec / 1000);
+    return s7_make_integer(sc, tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
 s7_pointer l8_pix(s7_scheme *sc, s7_pointer args) {
