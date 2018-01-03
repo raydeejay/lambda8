@@ -62,7 +62,7 @@ s7_pointer l8_spr(s7_scheme *sc, s7_pointer args) {
     double w = s7_number_to_real(sc, s7_cadddr(args));
     double h = s7_number_to_real(sc, s7_car(s7_cddddr(args)));
     SDL_Rect dst = {x, y, w, h};
-    
+
     SDL_RenderCopy( gRenderer, gSprites[(int) i],
                     NULL,
                     &dst /* NULL */ );
@@ -73,7 +73,7 @@ s7_pointer l8_spr(s7_scheme *sc, s7_pointer args) {
 s7_pointer l8_define_sprite(s7_scheme *sc, s7_pointer args) {
     const char *id = s7_string(s7_car(args));
     int success = 1;
-    
+
     SDL_Surface *surf = IMG_Load(id);
     if (surf == NULL) {
         printf("Error creating surface for %s\n", id);
@@ -81,7 +81,7 @@ s7_pointer l8_define_sprite(s7_scheme *sc, s7_pointer args) {
     }
 
     ++gMaxSprite;
-    
+
     gSprites[gMaxSprite] = SDL_CreateTextureFromSurface(gRenderer, surf);
     if (gSprites[gMaxSprite] == NULL) {
         printf("Error creating texture for %s\n", id);
@@ -145,6 +145,55 @@ s7_pointer l8_rectb(s7_scheme *sc, s7_pointer args) {
     return s7_t(sc);
 }
 
+// this code is replicated in core.lisp for flexibility
+// therefore this function is never used, but left here for reference
+s7_pointer l8_circb(s7_scheme *sc, s7_pointer args) {
+    double x0 = s7_number_to_real(sc, s7_car(args));
+    double y0 = s7_number_to_real(sc, s7_cadr(args));
+    double radius = s7_number_to_real(sc, s7_caddr(args));
+    int n = s7_integer(s7_cadddr(args));
+
+    int x = radius - 1;
+    int y = 0;
+    int dx = 1;
+    int dy = 1;
+    int err = dx - ((int) radius << 1);
+
+    SDL_SetRenderDrawColor(gRenderer, palette[n][0], palette[n][1], palette[n][2], 255);
+
+    while (x >= y)
+    {
+        const SDL_Point points[8] = {
+            {x0 + x, y0 + y},
+            {x0 + y, y0 + x},
+            {x0 - y, y0 + x},
+            {x0 - x, y0 + y},
+            {x0 - x, y0 - y},
+            {x0 - y, y0 - x},
+            {x0 + y, y0 - x},
+            {x0 + x, y0 - y}
+        };
+
+        SDL_RenderDrawPoints(gRenderer, points, 8);
+
+        if (err <= 0) {
+            y++;
+            err += dy;
+            dy += 2;
+        }
+
+        if (err > 0) {
+            x--;
+            dx += 2;
+            err += dx - ((int) radius << 1);
+        }
+    }
+
+    return s7_t(sc);
+}
+
+// this primitive is rewritten in core.lisp so the rendered lines comply with scaling
+// therefore this function is never used, but left here for reference
 s7_pointer l8_line(s7_scheme *sc, s7_pointer args) {
     double a = s7_number_to_real(sc, s7_car(args));
     double b = s7_number_to_real(sc, s7_cadr(args));
@@ -181,6 +230,7 @@ struct { const char *name; l8_func fn; int nargs; int optargs; bool restargs; co
     { "line",           l8_line,        5, 0, false, "(line x y x2 y2) Draws a line from x,y to x2,y2 in color c" },
     { "rect",           l8_rect,        5, 0, false, "(rect x y w h) Draws a filled rectangle at x,y size w,h in color c" },
     { "rectb",          l8_rectb,       5, 0, false, "(rectb x y w h) Draws a rectangle at x,y size w,h in color c" },
+    { "circb",          l8_circb,       4, 0, false, "(circb x y w h) Draws a circle centered at x,y radius n in color c" },
     { "cls",     l8_cls,     1, 0, false, "(cls n) Clears the screen using color n" },
 
     { NULL, NULL, 0, 0, false, NULL }
