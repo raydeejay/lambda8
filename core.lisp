@@ -88,10 +88,12 @@
                (< (+ Y2 H2) Y1)))))
 
   (define (make-sprite filename-or-id x y w h)
-    (let ((id -1) (dx 0) (dy 0))
-      (set! id (if (number? filename-or-id)
-                   filename-or-id
-                   (define-sprite filename-or-id)))
+    (let ((id #f) (dx 0) (dy 0))
+      (set! id (cond ((number? filename-or-id)
+                      filename-or-id)
+                     ((string? filename-or-id)
+                      (define-sprite filename-or-id))
+                     (else #f)))
       (lambda (method-name)
         (case method-name
           ('spr! (lambda (value) (set! id value)))
@@ -116,6 +118,6 @@
                      (set! x (+ x dx))
                      (set! y (+ y dy))))
           ('draw (lambda ()
-                   (spr id x y w h)))))))
+                   (when id (spr id x y w h))))))))
 
   (display "Core library loaded\n"))
