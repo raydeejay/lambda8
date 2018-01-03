@@ -16,6 +16,6 @@
              (slowedTime (* (time) SPEED))
              (x (- (* (sin slowedTime) (/ DEVIATION i)) (/ width 2)))
              (y (- (* (cos slowedTime) (/ DEVIATION i)) (/ height 2))))
-        (rect (+ HALF_SCR_W x) (+ HALF_SCR_H y) width height RECT_COLOR))))
+        (rectb (+ HALF_SCR_W x) (+ HALF_SCR_H y) width height RECT_COLOR))))
 
   "rect demo loaded\n")
