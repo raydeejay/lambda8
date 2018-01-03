@@ -43,6 +43,16 @@ These are the available primitives in Lisp:
   Draws a rectangle from x,y to x2,y2 using color c
 
 
+- (circ x y r c)
+
+  Draws a filled circle centered on x,y with radius r using color c
+
+
+- (circb x y r c)
+
+  Draws a circle centered on x,y with radius r using color c
+
+
 - (cls n)
 
   Clears the screen using color n
@@ -61,3 +71,34 @@ These are the available primitives in Lisp:
 - (printxy text x y c)
 
   Prints the text at x,y in color c
+
+
+## Core library
+Lambda8 packs a core library with the following functions (defined in Lisp):
+
+- (btn n)
+
+  Returns #t if button n is pressed
+
+
+- (btnp n)
+
+  Returns #t if button n is pressed but wasn't pressed the previous
+  frame (prevents repetition)
+
+
+- (filter p ls)
+
+  Returns a new list with the elements that satisfy predicate p, in
+  the same order
+
+
+- (collideAABB a b)
+
+  Returns #t if the bounding boxes of sprites a and b are overlapping
+
+
+- (make-sprite filename-or-id x y w h)
+
+  Creates a new sprite object. It can either load a new texture from a
+  file, or use the ID of an already loaded texture.
