@@ -120,4 +120,20 @@
           ('draw (lambda ()
                    (when id (spr id x y w h))))))))
 
+  ;; replacements for TIC-80's map concept, mget() and map()
+  (define *MAPBYTES*
+    (make-vector (list SCREEN-HEIGHT SCREEN-WIDTH) 0))
+
+  (define (mget x y)
+    (*MAPBYTES* (floor y) (floor x)))
+
+  (define (mset x y n)
+    (set! (*MAPBYTES* (floor y) (floor x)) n))
+
+  (define (blitmap x0 y0 w h sx sy)
+    ;; scale is ignored
+    (do ((y 0 (+ y 1))) ((= y h))
+      (do ((x 0 (+ x 1))) ((= x w))
+        (spr (mget x y) (+ x0 (* x 16)) (+ y0 (* y 16)) 16 16))))
+
   (display "Core library loaded\n"))
